@@ -1,14 +1,14 @@
-from collections import deque
+'''author @Rhythm KC'''
 from queue import Queue
 from typing import List
 
 
-defalut_maze =   [["X",'X','X','X','X','X','X','X','X','X','X','X','X'],
+default_maze =   [["X",'X','X','X','X','X','X','X','X','X','X','X','X'],
 ["$",".",".",".",".",".",".",".",".",".",".",".","X"],
 ["X",".","X","X","X",".","X","X","X",".","X",".","X"],
 ["X",".","X",".","X",".",".",".","X",".","X",".","X"],
 ["X",".","X",".","X","X","X",".","X","X","X",".","X"],
-["X",".",".",".",",",".",".",".",".",".","X",".","0"],
+["X",".",".",".",".",".",".",".",".",".",".",".","0"],
 ["X","X","X","X","X","X","X","X","X","X","X","X","X"]]
 
 FINISH = "0"
@@ -16,59 +16,83 @@ START = "$"
 EMPTY = "."
 BLOCKED ="X"
 
-def findstatstop(start=None):
-    for i, valuex in enumerate(defalut_maze):
+def find_start(start=None):
+    '''
+        checks if a start point exists in the given maze
+    '''
+    for i, valuex in enumerate(default_maze):
         for j, valuey in enumerate(valuex):
             if valuey == "$":
                 start =[i,j]
                 return start
-    if start is None:
-        raise Exception()
+    raise Exception()
 
-def getNeighbour(currentIndex):
-    no_Col = len(defalut_maze[0])
-    no_row = len(defalut_maze)
+
+def get_neighbour(current_index):
+    '''
+        For the gievn current index it finds it we can
+        move to the adjecent cells
+    '''
+    no_col = len(default_maze[0])
+    no_row = len(default_maze)
     neighbours = []
-    current_row = currentIndex[0]
-    current_col = currentIndex[1]
-    if(current_row + 1 != no_row):
-        if(defalut_maze[current_row+1][current_col]!=BLOCKED):
+    current_row = current_index[0]
+    current_col = current_index[1]
+    if current_row + 1 != no_row:
+        if default_maze[current_row+1][current_col]!=BLOCKED:
             neighbours.append([current_row+1,current_col])
-    if(current_row -1 != -1):
-        if(defalut_maze[current_row-1][current_col]!=BLOCKED):
+    if current_row -1 != -1:
+        if default_maze[current_row-1][current_col]!=BLOCKED:
             neighbours.append([current_row-1,current_col])
-    if(current_col+ 1 != no_Col):
-        if(defalut_maze[current_row][current_col+1]!=BLOCKED):
+    if current_col+ 1 != no_col:
+        if default_maze[current_row][current_col+1]!=BLOCKED:
             neighbours.append([current_row,current_col+1])
-    if(current_col-1 != -1):
-        if(defalut_maze[current_row][current_col-1]!=BLOCKED):
+    if current_col-1 != -1:
+        if default_maze[current_row][current_col-1]!=BLOCKED:
             neighbours.append([current_row,current_col-1])
+    return neighbours
 
-    return neighbours 
-        
-def solveMazeBFS(start:List):
-    vistited =[] 
+def solve_maze_bfs(start:List):
+    '''
+        Given a start point to a maze of n*n
+        the function finds the shortest path from start to a finish point if possible
+        @return bool true if path exists else false
+    '''
+    visited =[]
+    paths=[]
     queue = Queue()
-    queue.put(start)
-    while(not queue.empty()):
-        currentIndex = queue.get()
-        if(currentIndex not in vistited):
-            vistited.append(currentIndex)
-        if(defalut_maze[currentIndex[0]][currentIndex[1]]  == FINISH):
-           return True 
-        neighbours = getNeighbour(currentIndex)
-        for neighbour in neighbours:
-            if(neighbour not in vistited):
-                queue.put(neighbour)
-    
-    return False
+    queue.put([start])
+    while not queue.empty():
 
+        current_path = queue.get()
+        current_node = current_path[-1]
+
+        if current_node not in visited:
+            visited.append(current_node)
+            paths.append(current_path)
+        
+        if default_maze[current_node[0]][current_node[1]]  == FINISH:
+            return (True, paths)
+        neighbours = get_neighbour(current_node) 
+        for neighbour in neighbours:
+            if neighbour not in current_path:
+                new_path = current_path + [neighbour]
+                queue.put(new_path)
+    return (False, paths)
+
+def solve():
+    '''
+        solve the maze
+    '''
+    return solve_maze_bfs(find_start())
 
 def main():
+    '''
+        main function for the file
+    '''
     #try:
-        start = findstatstop()
-        print(f"{solveMazeBFS(start)} value")
-        
+    start = find_start()
+    print(solve_maze_bfs(start))
     #except Exception:
     #    print("NO WAY TO ENTER THE MAZE")
 
