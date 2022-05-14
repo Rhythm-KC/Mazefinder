@@ -1,5 +1,6 @@
 '''author @Rhythm KC'''
 from queue import Queue
+import queue
 from typing import List
 
 default_maze =   [["X",'X','X','X','X','X','X','X','X','X','X','X','X'],
@@ -84,32 +85,31 @@ def slove_maze_dfs(start:list):
         solves maze using DFS
     '''
     visited = []
-    paths =[[start]]
-    stack = []
+    paths =[]
+    stack = [[start]]
     while len(stack) != 0:
-        current_node = stack.pop(-1)
-        current_path = paths[-1]
+        current_path = stack.pop(-1)
+        current_node = current_path[-1]
 
         if current_node  in visited:
             continue
         
         visited.append(current_node)
-        paths.append(current_path + [current_node])
+        paths.append(current_path)
+
         if default_maze[current_node[0]][current_node[1]] == FINISH:
             return (True, paths)
         neighbours = get_neighbour(current_node)
 
         for neighbour in neighbours:
-            stack.append(neighbour)
-    return False, paths       
-
-
+            if neighbour not in visited:
+                stack.append(current_path + [neighbour])
+    return False, paths
 
 def solve():
     '''
         solve the maze
     '''
-    return solve_maze_dfs(find_start())
 
 def main():
     '''
