@@ -1,14 +1,12 @@
 '''author @Rhythm KC'''
 from queue import Queue
-import queue
-from typing import List
 
 default_maze =   [["X",'X','X','X','X','X','X','X','X','X','X','X','X'],
 ["$",".",".",".",".",".",".",".",".",".",".",".","X"],
 ["X",".","X","X","X",".","X","X","X",".","X",".","X"],
 ["X",".","X",".","X",".",".",".","X",".","X",".","X"],
-["X",".","X",".","X","X","X",".","X","X","X",".","X"],
-["X",".",".",".",".",".",".",".",".",".",".",".","0"],
+["X",".","X",".","X","X","X",".","X","0","X",".","X"],
+["X",".",".",".",".",".",".",".",".",".",".",".","X"],
 ["X","X","X","X","X","X","X","X","X","X","X","X","X"]]
 
 FINISH = "0"
@@ -52,7 +50,7 @@ def get_neighbour(current_index):
             neighbours.append([current_row,current_col-1])
     return neighbours
 
-def solve_maze_bfs(start:List):
+def solve_maze_bfs(start:list):
     '''
         Given a start point to a maze of n*n
         the function finds the shortest path from start to a finish point if possible
@@ -80,7 +78,7 @@ def solve_maze_bfs(start:List):
                 queue.put(new_path)
     return (False, paths)
 
-def slove_maze_dfs(start:list):
+def solve_maze_dfs(start:list):
     '''
         solves maze using DFS
     '''
@@ -105,21 +103,3 @@ def slove_maze_dfs(start:list):
             if neighbour not in visited:
                 stack.append(current_path + [neighbour])
     return False, paths
-
-def solve():
-    '''
-        solve the maze
-    '''
-
-def main():
-    '''
-        main function for the file
-    '''
-    #try:
-    start = find_start()
-    print(solve_maze_bfs(start))
-    #except Exception:
-    #    print("NO WAY TO ENTER THE MAZE")
-
-if __name__ == '__main__':
-    main()

@@ -47,6 +47,7 @@ def draw_path(path, canvas,finalMessage=None):
     '''
         takes a path and draws the path on the window 
     '''
+    canvas.fill(pygame.Color(0,0,0,1))
     for coor in path:
         yVal = coor[0] 
         xVal = coor[1]
@@ -54,50 +55,87 @@ def draw_path(path, canvas,finalMessage=None):
         pygame.draw.rect(canvas,(0,45,45,0.7),rect)
     if finalMessage != None:
         canvas.blit(finalMessage, finalMessage.get_rect())
-    pygame.display.update()
+
+def option_display(window, heigth, width):
+    '''
+        creates two buttons that helps users select if he wants to Use BFS or DFS
+    '''
+    pygame.draw.rect(window, (50,50,50),[width//2 -100,heigth//2, 50,30])
+    pygame.draw.rect(window, (50,50,50),[width//2 +50,heigth//2, 50,30])
+    
+    smallfont = pygame.font.Font(None,16) 
+    bfsText = smallfont.render('BFS' , True , (250,250,250))
+    dfsText = smallfont.render('DFS' , True , (250,250,250))
+    window.blit(bfsText, (width//2 -90, heigth//2 + 10))
+    window.blit(dfsText, (width//2 +60, heigth//2 + 10))
+
+def check_click_dfs(width, height, mousePos):
+    '''
+        checks if DFS button was clicked 
+    '''
+    return ((width//2+50)< mousePos[0]<(width//2+100) and (height//2 < mousePos[1] < height//2 +30))
+def check_click_bfs(width, height, mousePos):
+    '''
+        checks if BFS button was clicked 
+    '''
+    return ((width//2-100)< mousePos[0]<(width//2-50) and (height//2 < mousePos[1] < height//2 +30))
+
+def setup_window(mazeboard):
+    '''
+        Does the intital setup for the Graphics 
+    '''
+    WINDOW_WIDTH = len(mazeboard[0]) * BLOCK_WIDTH 
+    WINDOW_HEIGHT = len(mazeboard) * BLOCK_WIDTH 
+    display = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT)) # creating a window 
+    draw(mazeboard,display) # drawing the intital unexplored maze
+    option_display(display,WINDOW_HEIGHT, WINDOW_WIDTH)
+    return WINDOW_WIDTH, WINDOW_HEIGHT, display
 
 def main():
     '''
         the main function
     '''
-    looping = True
-
+    option_selected = False
     mazeboard = maze.default_maze
-    solved,paths = maze.solve() # solves the maze and returns all the paths explored and whether path was found or not
-
-    WINDOW_WIDTH = len(mazeboard[0]) * BLOCK_WIDTH 
-    WINDOW_HEIGHT = len(mazeboard) * BLOCK_WIDTH 
-    WINDOW = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT)) # creating a window 
-
-    draw(mazeboard,WINDOW) # drawing the intital unexplored maze
-    pygame.display.update()
+    solved,paths = None,None 
     text = None
+    WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW= setup_window(mazeboard) #setting up initial window
+
+
 
     # these condition set final text 
-    if solved:
-        text = FONT.render("Found shortest Path",False,pygame.Color(0,255,0,1),pygame.Color(0,0,0,0))
-        text.get_rect().center = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
-    else:
-        text = FONT.render("No path found",False,pygame.Color(255,0,0,1),pygame.Color(0,0,0,0))
-        text.get_rect().center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
+    #if solved:
+    #    text = FONT.render("Found shortest Path",False,pygame.Color(0,255,0,1),pygame.Color(0,0,0,0))
+    #    text.get_rect().center = (WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
+    #else:
+    #    text = FONT.render("No path found",False,pygame.Color(255,0,0,1),pygame.Color(0,0,0,0))
+    #    text.get_rect().center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/2)
 
     # the main loop
-    while(looping): 
-        fps_clock.tick_busy_loop(10) # setting fram rate to 10FPS
+    while(True): 
+        fps_clock.tick_busy_loop(5) # setting fram rate to 10FPS
         
         for events in pygame.event.get():
             if(events.type == pygame.QUIT):
                pygame.quit()
                sys.exit()
+            if (events.type == pygame.MOUSEBUTTONDOWN):
+                mousePos = pygame.mouse.get_pos()
+                if not option_selected and check_click_bfs(WINDOW_WIDTH, WINDOW_HEIGHT, mousePos):
+                    solved, paths = maze.solve_maze_bfs(maze.find_start())
+                    option_selected = True 
+                if not option_selected and check_click_dfs(WINDOW_WIDTH,WINDOW_HEIGHT, mousePos):
+                    solved, paths = maze.solve_maze_dfs(maze.find_start())
+                    option_selected = True 
         #drawing each path on by one 
-        if len(paths) !=0:
-            finalMessage  = None
-            if(len(paths) ==1):
-                finalMessage = text
-            draw_path(paths.pop(0),WINDOW, finalMessage)
-
-        WINDOW.fill(pygame.Color(0,0,0,1))
-        draw(mazeboard,WINDOW)
+        if option_selected:
+            if len(paths) !=0:
+                finalMessage  = None
+                if(len(paths) ==1):
+                    finalMessage = text
+                draw_path(paths.pop(0),WINDOW, finalMessage)
+                draw(mazeboard,WINDOW)
+        pygame.display.update()
 
 
 
